@@ -1129,8 +1129,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 						break;
 					}
 
-				} while (pParentInfo->NextEntryDelta && 
-					 pParentInfo = (PSYSTEM_PROCESSES)(((LPBYTE)pParentInfo) + pParentInfo->NextEntryDelta));
+				} while (pParentInfo = (PSYSTEM_PROCESSES)(((LPBYTE)pParentInfo) + pParentInfo->NextEntryDelta));
 
 				ftCreate.dwLowDateTime = pProcInfo->CreateTime.LowPart;
 				ftCreate.dwHighDateTime = pProcInfo->CreateTime.HighPart;
@@ -1241,11 +1240,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 						CloseHandle(hProcess);
 					}
 				}
-
-				if (pProcInfo->NextEntryDelta == 0) {
-					break;
-				}
-
 			} while (pProcInfo->NextEntryDelta &&
 				pProcInfo = (PSYSTEM_PROCESSES)(((LPBYTE)pProcInfo) + pProcInfo->NextEntryDelta));
 
