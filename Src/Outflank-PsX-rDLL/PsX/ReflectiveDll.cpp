@@ -1085,8 +1085,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 
 			pProcInfo = (PSYSTEM_PROCESSES)pBuffer;
 			do {
-				pProcInfo = (PSYSTEM_PROCESSES)(((LPBYTE)pProcInfo) + pProcInfo->NextEntryDelta);
-
 				swprintf_s(chBuffer, _countof(chBuffer), L"\n[I] ProcessName: %wZ\n", &pProcInfo->ProcessName);
 				if (FAILED(hr = lpStream->Write(chBuffer, (ULONG)wcslen(chBuffer) * sizeof(WCHAR), &dwWritten))) {
 					goto CleanUp;
@@ -1111,7 +1109,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 
 				PSYSTEM_PROCESSES pParentInfo = (PSYSTEM_PROCESSES)pBuffer;
 				do {
-					pParentInfo = (PSYSTEM_PROCESSES)(((LPBYTE)pParentInfo) + pParentInfo->NextEntryDelta);
 
 					if ((DWORD)pParentInfo->ProcessId == (DWORD)pProcInfo->InheritedFromProcessId) {
 						swprintf_s(chBuffer, _countof(chBuffer), L"(%wZ)\n", &pParentInfo->ProcessName);
@@ -1132,7 +1129,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 						break;
 					}
 
-				} while (pParentInfo);
+				} while (pParentInfo->NextEntryDelta && 
+					 pParentInfo = (PSYSTEM_PROCESSES)(((LPBYTE)pParentInfo) + pParentInfo->NextEntryDelta));
 
 				ftCreate.dwLowDateTime = pProcInfo->CreateTime.LowPart;
 				ftCreate.dwHighDateTime = pProcInfo->CreateTime.HighPart;
@@ -1248,7 +1246,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 					break;
 				}
 
-			} while (pProcInfo);
+			} while (pProcInfo->NextEntryDelta &&
+				pProcInfo = (PSYSTEM_PROCESSES)(((LPBYTE)pProcInfo) + pProcInfo->NextEntryDelta));
 
 #pragma warning( pop )
 
