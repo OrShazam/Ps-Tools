@@ -930,7 +930,7 @@ CleanUp:
 		free(lpwKernelPath);
 	}
 
-	if (pBuffer == NULL) {
+	if (pBuffer != NULL) {
 		status = NtFreeVirtualMemory(NtCurrentProcess(), &pBuffer, &uSize, MEM_RELEASE);
 	}
 
